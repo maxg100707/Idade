@@ -1,12 +1,14 @@
 <?php
 // Tarefa agendada (cron, a cada minuto): envia por push
-//  - lembrete 5 minutos antes de cada sessão da agenda de cada inscrito;
+//  - lembrete REMIND_MIN (10) minutos antes de cada sessão da agenda de cada inscrito;
 //  - aviso quando uma sessão da agenda muda de horário ou sai da programação;
 //  - resumo das demais mudanças na programação oficial.
 // Uso: php push-cron.php   (PUSH_NOW=2026-10-28T11:55:00-03:00 simula o horário em testes)
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require __DIR__ . '/programacao-lib.php';
 require __DIR__ . '/push-lib.php';
+
+const REMIND_MIN = 10; // minutos de antecedência do lembrete (igual a REMIND_MIN na página)
 
 $lock = fopen(push_dir() . '/cron.lock', 'c');
 if (!flock($lock, LOCK_EX | LOCK_NB)) exit; // execução anterior ainda rodando
@@ -48,7 +50,7 @@ foreach (glob(push_dir('subs') . '/*.json') as $file) {
         $s = $sessions[$id] ?? null;
         if (!$s || "2026-10-{$s['day']}" !== $today) continue;
         $left = $toMin($s['start']) - $nowMin;
-        if ($left >= 1 && $left <= 5) $msgs["rem:$id:{$s['start']}"] = [['title' => "Começa em $left min: {$s['title']}",
+        if ($left >= 1 && $left <= REMIND_MIN) $msgs["rem:$id:{$s['start']}"] = [['title' => "Começa em $left min: {$s['title']}",
             'body' => "{$s['start']}–{$s['end']} · " . $who($s), 'tag' => "rem-$id", 'url' => "./#dia-{$s['day']}"], $left * 60];
     }
     foreach ($moves as $id => $o) if (isset($favs[$id])) {

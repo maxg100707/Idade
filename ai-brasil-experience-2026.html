@@ -186,7 +186,7 @@ footer{border-top:1px solid var(--line);padding-block:20px 40px;color:var(--mute
       </label>
     </div>
     <div class="row toggles">
-      <button class="toggle" id="f-ntf" aria-pressed="false" title="Avisos 5 minutos antes das sessões da sua agenda e quando a programação mudar">🔔 Lembretes</button>
+      <button class="toggle" id="f-ntf" aria-pressed="false" title="Avisos 10 minutos antes das sessões da sua agenda e quando a programação mudar">🔔 Lembretes</button>
       <button class="toggle" id="f-now" aria-pressed="false"><span class="pulse"></span>Agora e em seguida</button>
       <button class="toggle" id="f-fav" aria-pressed="false">★ Minha agenda <span id="favn"></span></button>
       <button class="toggle" id="f-past" aria-pressed="false">Ocultar encerradas</button>
@@ -475,7 +475,8 @@ function renderAlert(){
   $("alert").hidden = !list.length;
   if (list.length) $("alert").innerHTML = `<div><b>${list.length === 1 ? "Uma sessão da sua agenda mudou" : list.length + " sessões da sua agenda mudaram"} no site oficial:</b><ul>${list.join("")}</ul></div><button id="ack">Entendi</button>`;
 }
-// Notifications: schedule changes and a reminder 5 minutes before each starred session
+// Notifications: schedule changes and a reminder REMIND_MIN minutes before each starred session
+const REMIND_MIN = 10; // keep in step with REMIND_MIN in push-cron.php
 const notified = new Set(store.get("aibx26-notified", []));
 const markNotified = k => { notified.add(k); store.set("aibx26-notified", [...notified].slice(-500)); };
 const notifyOn = () => state.notify && "Notification" in window && Notification.permission === "granted";
@@ -502,7 +503,7 @@ function checkReminders(){
   for (const s of Object.values(DATA).flat()) {
     if (!state.favs.has(s.id) || n.date !== dayDate(s.day)) continue;
     const left = s.s - n.min, key = `rem:${s.id}:${s.start}`;
-    if (left > 0 && left <= 5 && !notified.has(key)) {
+    if (left > 0 && left <= REMIND_MIN && !notified.has(key)) {
       markNotified(key);
       notify(`Começa em ${left} min: ${s.title}`, `${s.start}–${s.end} · ${s.arena}${s.sp ? " · " + s.sp : ""}`, "rem-" + s.id, "#dia-" + s.day);
     }
@@ -641,8 +642,8 @@ $("f-ntf").addEventListener("click", async () => {
       let push = false;
       if (pushSupported()) { try { await pushEnable(); push = true; } catch {} }
       notify("Lembretes ativados", push
-        ? "Você será avisado 5 minutos antes das sessões da sua agenda e quando a programação mudar, mesmo com o site fechado."
-        : "Você será avisado 5 minutos antes das sessões da sua agenda e quando a programação mudar, enquanto o site estiver aberto em alguma aba.", "on", "./", true);
+        ? "Você será avisado 10 minutos antes das sessões da sua agenda e quando a programação mudar, mesmo com o site fechado."
+        : "Você será avisado 10 minutos antes das sessões da sua agenda e quando a programação mudar, enquanto o site estiver aberto em alguma aba.", "on", "./", true);
     }
     else toast("Notificações bloqueadas", "Libere as notificações deste site nas configurações do navegador para receber os lembretes.");
   }
