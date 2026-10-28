@@ -479,7 +479,7 @@ function renderAlert(){
 const notified = new Set(store.get("aibx26-notified", []));
 const markNotified = k => { notified.add(k); store.set("aibx26-notified", [...notified].slice(-500)); };
 const notifyOn = () => state.notify && "Notification" in window && Notification.permission === "granted";
-let swReg = null, toastTimer;
+let swReg = null, toastTimer, pushOn = false, pushTimer;
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").then(r => { swReg = r; }).catch(() => {});
 function toast(title, body){
   const el = $("toast");
@@ -490,7 +490,7 @@ function toast(title, body){
 async function notify(title, body, tag, url, force){
   const front = document.visibilityState === "visible" && document.hasFocus();
   if (front) toast(title, body);
-  if (!notifyOn() || (front && !force)) return;
+  if (!notifyOn() || (front && !force) || (pushOn && !force)) return;
   const opts = {body, tag, icon: "icon-180.png", badge: "icon-180.png", data: {url: url || "./"}, renotify: !!tag, lang: "pt-BR"};
   try {
     const reg = swReg || (navigator.serviceWorker && await navigator.serviceWorker.getRegistration());
@@ -539,6 +539,37 @@ function announceChanges(prev, next, firstSync){
   if (a) parts.push(a === 1 ? "1 sessão nova" : `${a} sessões novas`);
   if (g) parts.push(g === 1 ? "1 sessão removida" : `${g} sessões removidas`);
   notify("Programação atualizada", parts.join(", ") + ". Toque para ver o que mudou.", "upd", "./");
+}
+// Web Push: the server (push-cron.php) notifies even with the site closed
+const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && location.protocol.startsWith("http");
+const b64uBytes = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+async function pushPost(action, sub){
+  const r = await fetch("push.php", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({action, subscription: sub.toJSON(), favs: [...state.favs]})});
+  if (!r.ok) throw new Error("push.php " + r.status);
+}
+async function pushEnable(){
+  const reg = swReg || await navigator.serviceWorker.ready;
+  const {key} = await (await fetch("push.php", {cache: "no-store"})).json();
+  let sub = await reg.pushManager.getSubscription();
+  // A subscription made with another server key can't receive our pushes: replace it
+  if (sub && sub.options.applicationServerKey && btoa(String.fromCharCode(...new Uint8Array(sub.options.applicationServerKey))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") !== key) { await sub.unsubscribe(); sub = null; }
+  if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64uBytes(key)});
+  await pushPost("subscribe", sub);
+  pushOn = true;
+}
+async function pushDisable(){
+  pushOn = false;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg && await reg.pushManager.getSubscription();
+    if (sub) { await pushPost("unsubscribe", sub).catch(() => {}); await sub.unsubscribe(); }
+  } catch {}
+}
+// Keep the server's copy of the agenda in step with the stars
+function pushSyncFavs(){
+  if (!pushOn) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async () => { try { await pushEnable(); } catch {} }, 800);
 }
 function syncNtf(){
   const on = notifyOn();
@@ -596,17 +627,23 @@ $("timeline").addEventListener("click", e => {
   const id = b.dataset.id;
   if (state.favs.has(id)) { state.favs.delete(id); delete favTimes[id]; }
   else { state.favs.add(id); const s = DATA[state.day].find(x => x.id === id); if (s) favTimes[id] = [s.start, s.end, s.title]; }
-  store.set("aibx26-favs", [...state.favs]); store.set("aibx26-favtimes", favTimes); render();
+  store.set("aibx26-favs", [...state.favs]); store.set("aibx26-favtimes", favTimes); render(); pushSyncFavs();
 });
 $("f-ntf").addEventListener("click", async () => {
-  if (state.notify) state.notify = false;
+  if (state.notify) { state.notify = false; pushDisable(); }
   else if (!("Notification" in window)) {
     toast("Notificações indisponíveis neste navegador", /iPhone|iPad/.test(navigator.userAgent) ? "No iPhone/iPad, adicione o site à Tela de Início (Compartilhar → Adicionar à Tela de Início), abra por lá e ative os lembretes." : "Os avisos vão aparecer aqui na página enquanto ela estiver aberta.");
     return;
   } else {
     const perm = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission;
     state.notify = perm === "granted";
-    if (state.notify) notify("Lembretes ativados", "Você será avisado 5 minutos antes das sessões da sua agenda e quando a programação mudar.", "on", "./", true);
+    if (state.notify) {
+      let push = false;
+      if (pushSupported()) { try { await pushEnable(); push = true; } catch {} }
+      notify("Lembretes ativados", push
+        ? "Você será avisado 5 minutos antes das sessões da sua agenda e quando a programação mudar, mesmo com o site fechado."
+        : "Você será avisado 5 minutos antes das sessões da sua agenda e quando a programação mudar, enquanto o site estiver aberto em alguma aba.", "on", "./", true);
+    }
     else toast("Notificações bloqueadas", "Libere as notificações deste site nas configurações do navegador para receber os lembretes.");
   }
   savePrefs(); syncNtf();
@@ -635,6 +672,8 @@ syncControls();
 setDay(hashDay || (prefs.day ? state.day : today === "2026-10-29" ? "29" : "28"), false);
 setInterval(render, 60000);
 syncNtf(); checkReminders();
+// Re-register the push subscription on each visit (it can expire, and the agenda may have changed)
+if (notifyOn() && pushSupported()) pushEnable().catch(() => {});
 setInterval(checkReminders, 20000);
 // Check the official schedule now, every 5 minutes, and whenever the tab comes back
 syncLive();
