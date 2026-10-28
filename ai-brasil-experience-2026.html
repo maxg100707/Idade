@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Brasil Experience 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Programação da AI Brasil Experience 2026 (28 e 29 de outubro) organizada por horário, com busca, filtro por arena e agenda pessoal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+</head>
+<body>
+<style>
+/* Layout: sticky control bar over a time-ordered timeline; each start time is a row, sessions stack beside it */
+:root{
+  --bg:#f5f7f2; --surface:#ffffff; --ink:#10221a; --muted:#5a6b62; --line:#dbe3dc;
+  --accent:#0b7a4b; --accent-ink:#ffffff; --sun:#f2c230; --sun-ink:#2a2200; --live:#d6402b;
+  --al:42%; --as:62%;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1611; --surface:#13211a; --ink:#e6efe9; --muted:#93a69b; --line:#24372d;
+  --accent:#3fcf8e; --accent-ink:#06150e; --sun:#f5cd4f; --sun-ink:#2a2200; --live:#ff6b55;
+  --al:66%; --as:60%; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1611; --surface:#13211a; --ink:#e6efe9; --muted:#93a69b; --line:#24372d;
+  --accent:#3fcf8e; --accent-ink:#06150e; --sun:#f5cd4f; --sun-ink:#2a2200; --live:#ff6b55;
+  --al:66%; --as:60%; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Hero */
+header.hero{padding-block:36px 20px}
+.eyebrow{font:700 12px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--sun)}
+h1{font:800 clamp(34px,7vw,64px)/.95 var(--f-display);letter-spacing:-.03em;margin:14px 0 12px;text-wrap:balance}
+h1 em{font-style:normal;background:var(--sun);color:var(--sun-ink);padding:0 .12em;border-radius:6px}
+.lede{color:var(--muted);max-width:60ch;margin:0}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:18px;font:500 13px/1.3 var(--f-mono);color:var(--muted)}
+.stats b{color:var(--ink);font-weight:700}
+
+/* Controls */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;flex-direction:column;gap:10px;padding-block:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tabs{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.tab{border:0;background:transparent;padding:7px 14px;border-radius:7px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab small{font:500 11px var(--f-mono);color:var(--muted);margin-left:6px}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tab[aria-selected="true"] small{color:inherit;opacity:.7}
+.search{flex:1 1 220px;min-width:0;position:relative}
+.search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.toggle{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;gap:7px;align-items:center;white-space:nowrap}
+.toggle[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.toggle .pulse{width:8px;height:8px;border-radius:50%;background:var(--live)}
+.toggle[aria-pressed="true"] .pulse{background:var(--accent-ink)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-inline:-2px;padding-inline:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{--c:hsl(var(--h) var(--as) var(--al));flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 9px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.chip[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c);font-weight:600}
+.chip.all i{background:conic-gradient(var(--sun),var(--accent),var(--live),var(--sun))}
+
+/* Timeline */
+main{padding-block:8px 64px}
+.note{font:500 13px var(--f-mono);color:var(--muted);padding-block:14px 4px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.slot{display:grid;grid-template-columns:76px 1fr;gap:14px;padding-block:14px;border-top:1px dashed var(--line);scroll-margin-top:170px}
+.slot:first-of-type{border-top:0}
+.time{font:700 19px/1 var(--f-mono);font-variant-numeric:tabular-nums;padding-top:12px;position:sticky;top:170px;align-self:start}
+.slot.past .time{color:var(--muted)}
+.slot.nowline .time{color:var(--live)}
+.list{display:grid;gap:8px;min-width:0}
+.card{--c:hsl(var(--h) var(--as) var(--al));display:grid;grid-template-columns:1fr auto;gap:4px 12px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:11px 12px 11px 14px;min-width:0}
+.card.past{opacity:.55}
+.card.live{border-color:var(--live);border-left-color:var(--live);box-shadow:0 0 0 1px var(--live)}
+.card h3{margin:0;font:600 16px/1.3 var(--f-body);text-wrap:pretty;overflow-wrap:anywhere}
+.meta{grid-column:1;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted);align-items:center}
+.meta .arena{color:var(--ink);display:inline-flex;gap:6px;align-items:center;font-weight:500}
+.meta .arena i{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.meta .hrs{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.badge{font:700 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--live);color:#fff}
+.badge.soon{background:var(--sun);color:var(--sun-ink)}
+.star{grid-column:2;grid-row:1 / span 2;align-self:center;border:1px solid var(--line);background:transparent;width:40px;height:40px;border-radius:10px;cursor:pointer;display:grid;place-items:center;color:var(--muted)}
+.star svg{width:20px;height:20px}
+.star[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:var(--sun-ink)}
+.conflict{color:var(--live);font-weight:600}
+mark{background:var(--sun);color:var(--sun-ink);border-radius:2px;padding:0 1px}
+
+.empty{padding:48px 0;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font:700 20px var(--f-display);margin-bottom:6px}
+.fab{position:fixed;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:25;border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:11px 16px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgb(0 0 0 / .18)}
+footer{border-top:1px solid var(--line);padding-block:20px 40px;color:var(--muted);font-size:13px}
+
+@media (max-width:560px){
+  .slot{grid-template-columns:1fr;gap:8px;scroll-margin-top:200px}
+  .time{position:static;padding-top:0;font-size:17px}
+  .tab{padding:7px 10px}
+  .toggles{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .toggles::-webkit-scrollbar{display:none}
+  .toggle{flex:none;padding:7px 10px;font-size:13px}
+  .bar .wrap{gap:8px;padding-block:10px}
+  header.hero{padding-block:24px 14px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .card{transition:transform .15s ease,box-shadow .15s ease}
+  .card:hover{transform:translateY(-1px)}
+  .toggle .pulse{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.35}}
+}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span>28 + 29 de outubro de 2026</span><span class="dot"></span><span>Todas as arenas</span></div>
+    <h1>AI Brasil Experience <em>2026</em></h1>
+    <p class="lede">A programação completa em uma linha do tempo. Escolha o dia, filtre por arena, busque por tema e marque com estrela o que quer assistir para montar sua agenda.</p>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="row">
+      <div class="tabs" role="tablist" aria-label="Dia do evento">
+        <button class="tab" role="tab" id="tab-28" data-day="28">Qua 28<small id="n-28"></small></button>
+        <button class="tab" role="tab" id="tab-29" data-day="29">Qui 29<small id="n-29"></small></button>
+      </div>
+      <label class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar sessão ou arena (ex.: agentes, saúde, GEO)" autocomplete="off" aria-label="Buscar sessão">
+      </label>
+    </div>
+    <div class="row toggles">
+      <button class="toggle" id="f-now" aria-pressed="false"><span class="pulse"></span>Agora e em seguida</button>
+      <button class="toggle" id="f-fav" aria-pressed="false">★ Minha agenda <span id="favn"></span></button>
+      <button class="toggle" id="f-past" aria-pressed="false">Ocultar encerradas</button>
+    </div>
+    <div class="chips" id="chips" aria-label="Filtrar por arena"></div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="note"><span id="summary"></span><span id="clock"></span></div>
+    <div id="timeline"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Fonte: “AI Brasil Experience 2026 · Programação organizada por horário”. Horários de Brasília. Sua agenda fica salva neste navegador.</div>
+</footer>
+
+<button class="fab" id="jump" hidden>Ir para agora ↓</button>
+
+<script>
+const DATA = {"28":[{"start":"09:00","title":"Nossa Visão + Hino + Confia no Futuro","arena":"Arena TODOS NÓS","end":"09:20"},{"start":"09:00","title":"Fundamentos da IA generativa","arena":"Arena Adapta","end":"10:30"},{"start":"09:20","title":"LLM CEIA One","arena":"Arena TODOS NÓS","end":"09:40"},{"start":"09:30","title":"A revolução da IA começa com a propriedade dos dados","arena":"Arena EU FAÇO by BeCulture","end":"10:05"},{"start":"09:30","title":"Como o mercado de Design fica com a IA?","arena":"Arena NÓS TRANSFORMAMOS","end":"10:05"},{"start":"09:40","title":"Além da IA generativa: o que o mundo está preparando para o futuro da inteligência artificial","arena":"Arena TODOS NÓS","end":"10:15"},{"start":"09:50","title":"Decisão em Escala: IA que aprende a decidir e agir","arena":"Arena NÓS SOMOS CEIA","end":"10:30"},{"start":"10:00","title":"Do prompt ao agente: construindo um fluxo de IA para resolver uma tarefa real","arena":"Stand CEIA","end":"10:55"},{"start":"10:05","title":"GEO: como a IA interpreta e cita o seu conteúdo","arena":"Arena EU FAÇO by BeCulture","end":"10:40"},{"start":"10:05","title":"Não seja AI First","arena":"Arena NÓS TRANSFORMAMOS","end":"10:40"},{"start":"10:10","title":"Olhar analítico para a IA nas empresas","arena":"Palco BeCulture/UAH!","end":"10:50"},{"start":"10:15","title":"A MacroeconomI.A: quais oportunidades e desafios estão por vir?","arena":"Arena TODOS NÓS","end":"10:50"},{"start":"10:20","title":"Logística Reversa: Do encantamento à Fidelização","arena":"Vila Confi","end":"11:00"},{"start":"10:35","title":"Como usar IA para vender mais","arena":"Arena Adapta","end":"12:05"},{"start":"10:40","title":"Como a IA multiplica sua operação sem multiplicar seu time","arena":"Arena NÓS TRANSFORMAMOS","end":"11:15"},{"start":"10:40","title":"Dinheiro, Discurso e Descarte: por que grandes projetos de IA nascem mortos","arena":"Arena EU FAÇO by BeCulture","end":"11:20"},{"start":"10:50","title":"Eu, Nós e Todos Nós","arena":"Arena TODOS NÓS","end":"11:25"},{"start":"10:50","title":"Autoconhecimento UAH!: do espelho à arte","arena":"Palco BeCulture/UAH!","end":"11:30"},{"start":"10:50","title":"IA no e-commerce: o que vale colocar em produção agora?","arena":"Vila Confi","end":"11:35"},{"start":"10:55","title":"De IA generativa a sistemas agentivos: como estamos construindo software com IA","arena":"Stand CEIA","end":"11:50"},{"start":"11:00","title":"IA no mercado de Venture Capital","arena":"Vila Confi","end":"11:40"},{"start":"11:10","title":"Entrevista TV AI Brasil","arena":"TV AI Brasil","end":"11:40"},{"start":"11:10","title":"Edge AI e Wearables: o futuro da inteligência artificial vestível","arena":"Arena NÓS SOMOS CEIA","end":"11:50"},{"start":"11:10","title":"Inteligência Artificial vs Inteligência Ancestral","arena":"Arena EU SOU","end":"12:00"},{"start":"11:15","title":"Se a vida é um jogo, estas são as regras","arena":"Arena NÓS TRANSFORMAMOS","end":"11:50"},{"start":"11:20","title":"Menos forecast, mais foresight: o futuro da IA","arena":"Arena EU FAÇO by BeCulture","end":"11:55"},{"start":"11:35","title":"Modelos Fundacionais de IA: Transformers aplicados em dados reais do mercado","arena":"Arena TODOS NÓS","end":"12:10"},{"start":"11:40","title":"Entrevista TV AI Brasil","arena":"TV AI Brasil","end":"12:10"},{"start":"11:40","title":"O que é hype e o que é realidade na evolução da IA","arena":"Vila Confi","end":"12:20"},{"start":"11:50","title":"Tenho uma ideia... e agora?","arena":"Arena NÓS TRANSFORMAMOS","end":"12:25"},{"start":"11:50","title":"IA Aplicada a Agentes Conversacionais: desafios e oportunidades","arena":"Arena NÓS SOMOS CEIA","end":"12:30"},{"start":"11:55","title":"IH > IA? O que ainda nos torna insubstituíveis","arena":"Arena EU FAÇO by BeCulture","end":"12:30"},{"start":"12:00","title":"A IA multiplica o que você já é: por que a escala da empresa começa no dono","arena":"Arena EU SOU","end":"12:50"},{"start":"12:10","title":"Como desenvolver produtos na era da IA","arena":"Arena TODOS NÓS","end":"12:30"},{"start":"12:10","title":"Aprenda a transformar uma ideia em uma aplicação funcional usando IA","arena":"Arena Adapta","end":"13:40"},{"start":"12:25","title":"Quando a máquina trabalha pra gente?","arena":"Arena NÓS TRANSFORMAMOS","end":"13:00"},{"start":"12:30","title":"Software legado: como reconstruir seu negócio com IA","arena":"Arena EU FAÇO by BeCulture","end":"13:05"},{"start":"12:30","title":"IA na Prática: o case da Evah na Austa","arena":"Arena NÓS SOMOS CEIA","end":"13:10"},{"start":"12:40","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"13:10"},{"start":"12:40","title":"IA como projeto de Estado: governo, sociedade e o futuro que queremos construir","arena":"Arena TODOS NÓS","end":"13:15"},{"start":"13:00","title":"A IA que ninguém vê, mas traz lucro: governança, compliance e BI na prática","arena":"Arena NÓS TRANSFORMAMOS","end":"13:35"},{"start":"13:05","title":"GEO: como fazer as IAs recomendarem a sua marca e não a do concorrente","arena":"Arena EU FAÇO by BeCulture","end":"13:40"},{"start":"13:10","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"13:40"},{"start":"13:25","title":"Confia no seu negócio","arena":"Arena TODOS NÓS","end":"14:05"},{"start":"13:35","title":"GEO: como a IA conta a história da sua empresa?","arena":"Arena NÓS TRANSFORMAMOS","end":"14:10"},{"start":"13:40","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"14:10"},{"start":"13:40","title":"O profissional que IA não substitui","arena":"Arena EU FAÇO by BeCulture","end":"14:15"},{"start":"13:40","title":"Entre o exponencial e o artesanal: quem você escolhe ser quando o mundo muda?","arena":"Arena EU SOU","end":"14:30"},{"start":"13:45","title":"O Paradoxo da Escala: como escalar serviços high-ticket mesmo dependendo de pessoas","arena":"Arena Adapta","end":"15:15"},{"start":"13:50","title":"Entre pensar e decidir: como humanos e IA trabalham juntos","arena":"Arena NÓS SOMOS CEIA","end":"14:30"},{"start":"14:00","title":"O CRM como você conhec(IA) morreu. E agora?","arena":"Vila Confi","end":"14:45"},{"start":"14:00","title":"Transição de Carreira: como profissionais de outras áreas podem migrar para IA e Tecnologia","arena":"Stand CEIA","end":"14:55"},{"start":"14:10","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"14:40"},{"start":"14:10","title":"ROI em Projetos de IA: como garantir métricas efetivas, aprovação do board e resultados incontestáveis","arena":"Arena NÓS TRANSFORMAMOS","end":"14:45"},{"start":"14:10","title":"Liderança consciente e cultura viva que impulsionam inovação","arena":"Palco BeCulture/UAH!","end":"14:50"},{"start":"14:15","title":"Agro inteligente: Dados + IA para gestão rural com rastreabilidade e qualidade de alimentos até o consumidor","arena":"Arena EU FAÇO by BeCulture","end":"14:50"},{"start":"14:25","title":"Cultura Agêntica: do laboratório ao carrinho de compras — Como agentes de IA estão mudando o hábito do consumidor e por que o BCP prepara o e-commerce brasileiro para isso","arena":"Arena TODOS NÓS","end":"15:00"},{"start":"14:30","title":"EnergyGPT: Inteligência Artificial aplicada ao setor de energia","arena":"Arena NÓS SOMOS CEIA","end":"15:10"},{"start":"14:30","title":"O tédio era onde nasciam as suas ideias","arena":"Arena EU SOU","end":"15:20"},{"start":"14:40","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"15:10"},{"start":"14:45","title":"Como a China está redesenhando o jogo da tecnologia global","arena":"Arena NÓS TRANSFORMAMOS","end":"15:20"},{"start":"14:45","title":"Confiança","arena":"Vila Confi","end":"15:25"},{"start":"14:50","title":"Os 7 Pecados Capitais do Líder com IA","arena":"Arena EU FAÇO by BeCulture","end":"15:25"},{"start":"14:50","title":"Corpo em movimento: sair da cadeira para pensar melhor","arena":"Palco BeCulture/UAH!","end":"15:30"},{"start":"14:55","title":"Match inteligente: embeddings e modelagem de tópicos para recomendar vagas","arena":"Stand CEIA","end":"15:50"},{"start":"15:10","title":"Inteligência Artificial: A Próxima Revolução Não Será das Máquinas, Será da Mente Humana","arena":"Arena TODOS NÓS","end":"15:45"},{"start":"15:10","title":"IA na Saúde: transformando diagnósticos, tratamentos e cuidados","arena":"Arena NÓS SOMOS CEIA","end":"15:50"},{"start":"15:20","title":"O fim da ferramenta de uma dor só: agentes e ecossistemas no futuro da venda B2B","arena":"Arena NÓS TRANSFORMAMOS","end":"16:00"},{"start":"15:20","title":"Oratória. Falar, até papagaio fala","arena":"Arena EU SOU","end":"16:10"},{"start":"15:20","title":"Agentes de IA na prática","arena":"Arena Adapta","end":"16:50"},{"start":"15:25","title":"Do Hype ao Hábito: como a cultura de aprendizagem potencializa e sustenta o uso da IA nas organizações","arena":"Arena EU FAÇO by BeCulture","end":"16:00"},{"start":"15:30","title":"Gestão de Pessoas com IA, Dados e Tech","arena":"Palco BeCulture/UAH!","end":"16:10"},{"start":"15:40","title":"Escalar sem perder o cuidado: os desafios da Logística Reversa no varejo de luxo","arena":"Vila Confi","end":"16:15"},{"start":"15:50","title":"IA para Gov","arena":"Arena NÓS SOMOS CEIA","end":"16:30"},{"start":"15:55","title":"Além do Vibe Coding: da ideia à produção com segurança e governança","arena":"Arena TODOS NÓS","end":"16:30"},{"start":"16:00","title":"Uso responsável da IA na prática: como capacitar os profissionais e obter resultados melhores e mensuráveis","arena":"Arena EU FAÇO by BeCulture","end":"16:35"},{"start":"16:00","title":"A fórmula da IA na gestão","arena":"Arena NÓS TRANSFORMAMOS","end":"16:35"},{"start":"16:10","title":"Sim, sem Medo; Não, sem Culpa! by Decidologia","arena":"Arena EU SOU","end":"17:00"},{"start":"16:15","title":"IA aplicada ao Omnichannel: do relatório à decisão antes do cliente reclamar","arena":"Vila Confi","end":"16:55"},{"start":"16:30","title":"Physical AI: o futuro da indústria com robótica e gêmeos digitais","arena":"Arena NÓS SOMOS CEIA","end":"17:10"},{"start":"16:35","title":"A competição da Inteligência","arena":"Arena EU FAÇO by BeCulture","end":"17:10"},{"start":"16:35","title":"Inteligência Artificial: a produtividade aparece na margem e nos resultados, ou só no discurso?","arena":"Arena NÓS TRANSFORMAMOS","end":"17:10"},{"start":"16:40","title":"Como Confiar no futuro?","arena":"Arena TODOS NÓS","end":"17:20"},{"start":"16:45","title":"Casa de ferreiro, espeto de IA: como quem vende IA usa IA dentro de casa","arena":"Stand CEIA","end":"17:40"},{"start":"16:55","title":"Construindo sistemas complexos com IA","arena":"Arena Adapta","end":"18:25"},{"start":"17:00","title":"Magnifica Humanitas: o que a Igreja fala sobre IA","arena":"Arena EU SOU","end":"17:50"},{"start":"17:10","title":"Algoritmos com consciência: o papel das mulheres que decidem o futuro da IA","arena":"Arena EU FAÇO by BeCulture","end":"17:50"},{"start":"17:10","title":"Produtividade apareceu na margem ou só no discurso?","arena":"Arena NÓS TRANSFORMAMOS","end":"17:50"},{"start":"17:30","title":"Clóvis de Barros Filho","arena":"Arena TODOS NÓS","end":"18:20"},{"start":"17:50","title":"Gestão da Inovação: IA, Agentes de IA, Deepfake, Arquitetura de Sistemas","arena":"Arena EU FAÇO by BeCulture","end":"18:25"},{"start":"17:50","title":"RACE AI: do cockpit ao pódio","arena":"Arena NÓS TRANSFORMAMOS","end":"18:25"},{"start":"17:50","title":"O Futuro da Inteligência","arena":"Arena EU SOU","end":"18:40"},{"start":"18:25","title":"Q&A","arena":"Arena TODOS NÓS","end":"18:45"},{"start":"18:25","title":"Case IA em automação de vendas","arena":"Arena EU FAÇO by BeCulture","end":"19:00"},{"start":"18:30","title":"Como integrar IA nas ferramentas que sua empresa usa: CRMs, ERPs e ferramentas internas","arena":"Arena Adapta","end":"19:55"}],"29":[{"start":"09:00","title":"Fundamentos da IA generativa","arena":"Arena Adapta","end":"10:30"},{"start":"09:15","title":"Admirável Novo Humano: em um mundo tão tecnológico, ser humano é um ato de resistência","arena":"Arena TODOS NÓS","end":"10:05"},{"start":"09:25","title":"Parei de fazer o que sabia. Comecei a fazer o que imaginava. — Como a inteligência artificial multiplicou minha capacidade de criar, resolver problemas e transformar ideias em projetos reais.","arena":"Arena TODOS NÓS","end":"10:00"},{"start":"09:30","title":"Empreendedorismo jovem: jovens escalando e crescendo com IA","arena":"TV AI Brasil","end":"09:40"},{"start":"09:30","title":"O Novo Nós: a coevolução entre humanos e agentes artificiais","arena":"Arena EU FAÇO by BeCulture","end":"10:05"},{"start":"09:30","title":"Como usamos IA para crescer 108% em apenas 30 dias e você também pode","arena":"Arena EU SOU","end":"10:20"},{"start":"09:40","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"10:10"},{"start":"09:40","title":"MyBrain","arena":"Arena NÓS SOMOS CEIA","end":"10:20"},{"start":"09:40","title":"Lovable Enterprise: da prototipagem à escala global","arena":"Arena NÓS TRANSFORMAMOS","end":"10:20"},{"start":"10:00","title":"A Jornada da Reversa com uma agenda integrada e nacional - ABREV","arena":"Vila Confi","end":"10:40"},{"start":"10:00","title":"A entrega começa no checkout: como os dados podem influenciar na logística","arena":"Vila Confi","end":"10:40"},{"start":"10:00","title":"Do laboratório ao term sheet: como startups de IA se preparam para captar com VCs","arena":"Stand CEIA","end":"10:55"},{"start":"10:05","title":"Da estratégia ao case: como Estados e Cidades estão aplicando IA na vida do cidadão","arena":"Arena EU FAÇO by BeCulture","end":"10:40"},{"start":"10:05","title":"Por que as pessoas têm dificuldade em evoluir - inclusive você","arena":"Arena TODOS NÓS","end":"10:55"},{"start":"10:10","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"10:40"},{"start":"10:20","title":"A nova chance do Varejo","arena":"Arena NÓS TRANSFORMAMOS","end":"10:55"},{"start":"10:20","title":"Engenharia de Software na Era da IA Generativa","arena":"Arena NÓS SOMOS CEIA","end":"11:00"},{"start":"10:20","title":"O futuro das relações: desenhando a infraestrutura social na era da IA","arena":"Arena EU SOU","end":"11:10"},{"start":"10:35","title":"Como usar IA para vender mais","arena":"Arena Adapta","end":"12:05"},{"start":"10:40","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"11:10"},{"start":"10:40","title":"Como um CRM agêntico transforma leads frios em vendas fechadas no WhatsApp","arena":"Arena EU FAÇO by BeCulture","end":"11:15"},{"start":"10:40","title":"Pipeline e sucessão de liderança na era da IA","arena":"Palco BeCulture/UAH!","end":"11:20"},{"start":"10:40","title":"Comércio inteligente: pessoas, dados e tecnologia a serviço da margem","arena":"Vila Confi","end":"11:20"},{"start":"10:40","title":"HIC: Tem coisa que não cabe no prompt","arena":"Vila Confi","end":"11:20"},{"start":"10:55","title":"Confiança vende ou só evita processo?","arena":"Arena NÓS TRANSFORMAMOS","end":"11:35"},{"start":"10:55","title":"Como orquestrar multiagentes em uma plataforma de gestão de projetos","arena":"Stand CEIA","end":"11:50"},{"start":"11:00","title":"Inteligência Artificial no Setor Energético: inovação, eficiência e novas possibilidades","arena":"Arena NÓS SOMOS CEIA","end":"11:40"},{"start":"11:00","title":"O Mindset da IA","arena":"Arena TODOS NÓS","end":"11:40"},{"start":"11:10","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"11:40"},{"start":"11:10","title":"Os limites éticos da tecnologia: o que nos torna humanos","arena":"Arena EU SOU","end":"12:00"},{"start":"11:15","title":"Antes do agente, a arquitetura: construindo um segundo cérebro funcional","arena":"Arena EU FAÇO by BeCulture","end":"11:50"},{"start":"11:20","title":"A potência da IA esbarra na cultura","arena":"Palco BeCulture/UAH!","end":"12:00"},{"start":"11:35","title":"Do shadow AI ao cognitive core: governando agentes que escapam dos controles atuais","arena":"Arena NÓS TRANSFORMAMOS","end":"12:10"},{"start":"11:50","title":"Sua IA responde. Mas ela sabe o que fazer primeiro?","arena":"Arena EU FAÇO by BeCulture","end":"12:25"},{"start":"11:50","title":"IA generativa que faz acontecer: Alexa+ chega para simplificar a vida real","arena":"Arena TODOS NÓS","end":"12:30"},{"start":"12:00","title":"Foco no Futuro das Profissões: conheça as lições aprendidas com a medalhista da WorldSkills Myllena Nogueira","arena":"Arena EU SOU","end":"12:35"},{"start":"12:10","title":"Da Ciência à Escala Global: como agentes de IA da Cilia estão reinventando a jornada de sinistros no mundo","arena":"Arena NÓS TRANSFORMAMOS","end":"12:45"},{"start":"12:10","title":"Aprenda a transformar uma ideia em uma aplicação funcional usando IA","arena":"Arena Adapta","end":"13:40"},{"start":"12:20","title":"IA Aplicada à Mobilidade: inovação, tecnologia e novas soluções","arena":"Arena NÓS SOMOS CEIA","end":"13:00"},{"start":"12:30","title":"Dança PAC · Ativação","arena":"Arena TODOS NÓS","end":"13:00"},{"start":"12:40","title":"Tendências para a Black Friday no e-commerce: mercado continuará crescendo?","arena":"Vila Confi","end":"13:20"},{"start":"12:45","title":"Quando a máquina falha: gestão de crises, reputação e pessoas no ecossistema da IA","arena":"Arena NÓS TRANSFORMAMOS","end":"13:25"},{"start":"13:00","title":"PolicyAI: IA aplicada aos desafios da gestão pública","arena":"Arena NÓS SOMOS CEIA","end":"13:40"},{"start":"13:05","title":"Como usar loops de valor para se tornar uma empresa nativa de IA","arena":"Arena EU FAÇO by BeCulture","end":"13:40"},{"start":"13:20","title":"A Ciência da decisão e performance com dados","arena":"Arena TODOS NÓS","end":"13:30"},{"start":"13:20","title":"HIC: profissionais de alto impacto na era da IA","arena":"Palco BeCulture/UAH!","end":"14:00"},{"start":"13:25","title":"IA Desgovernada: do hype à falta de decisão","arena":"Arena NÓS TRANSFORMAMOS","end":"14:00"},{"start":"13:25","title":"Entre a Inteligência e a Artificialidade: será que já fomos substituídos pela Inteligência Artificial?","arena":"Arena EU SOU","end":"14:15"},{"start":"13:30","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"14:10"},{"start":"13:40","title":"Como alavancar negócios com IA nos eventos","arena":"Arena EU FAÇO by BeCulture","end":"14:20"},{"start":"13:40","title":"Como o CEIA pode apoiar sua empresa no desenvolvimento de Projetos de PDI com IA","arena":"Arena NÓS SOMOS CEIA","end":"14:20"},{"start":"13:45","title":"O Paradoxo da Escala: como escalar serviços high-ticket mesmo dependendo de pessoas","arena":"Arena Adapta","end":"15:15"},{"start":"13:50","title":"A inteligência artificial está nos deixando mais burros?","arena":"Arena TODOS NÓS","end":"14:30"},{"start":"14:00","title":"Do piloto ao resultado: como transformar a IA em rotina na produção de conteúdo","arena":"Arena NÓS TRANSFORMAMOS","end":"14:35"},{"start":"14:00","title":"Formação de jovens para a transformação tecnológica","arena":"Palco BeCulture/UAH!","end":"14:40"},{"start":"14:00","title":"IA Clínica Governada: da inteligência artificial que funciona à inteligência artificial que pode ser usada na saúde","arena":"Stand CEIA","end":"14:55"},{"start":"14:10","title":"TV AI Brasil ao vivo","arena":"TV AI Brasil","end":"14:50"},{"start":"14:15","title":"A IA já escolhe quem entra no funil: como transformar visibilidade no ChatGPT, Gemini e Google em demanda, pipeline e receita","arena":"Arena EU SOU","end":"15:05"},{"start":"14:20","title":"Onde a sua profissão estará em três anos, com números","arena":"Arena EU FAÇO by BeCulture","end":"14:55"},{"start":"14:20","title":"Futuro da IA para as empresas no Brasil","arena":"Arena NÓS SOMOS CEIA","end":"15:00"},{"start":"14:35","title":"ROT: Return of Tokens","arena":"Arena NÓS TRANSFORMAMOS","end":"15:15"},{"start":"14:40","title":"IA na gestão de Pessoas | Pessoas + Tecnologia = BeCulture","arena":"Palco BeCulture/UAH!","end":"15:20"},{"start":"14:50","title":"Interface Zero: a queda da última barreira de adoção e o nascimento de uma nova internet","arena":"Arena TODOS NÓS","end":"15:25"},{"start":"14:55","title":"Milissegundos Críticos: a IA entre a infraestrutura na nuvem e a decisão no caixa","arena":"Arena EU FAÇO by BeCulture","end":"15:30"},{"start":"14:55","title":"Como o CEIA acelera sua startup de IA: pesquisa, programas e comunidade","arena":"Stand CEIA","end":"15:50"},{"start":"15:05","title":"A história se repete. A gente é que esquece.","arena":"Arena EU SOU","end":"15:55"},{"start":"15:15","title":"A IA que decide não conversa: Machine Learning como serviço","arena":"Arena NÓS TRANSFORMAMOS","end":"15:50"},{"start":"15:20","title":"Formação de pessoas e liderança consciente na era da IA","arena":"Palco BeCulture/UAH!","end":"16:00"},{"start":"15:20","title":"Agentes de IA na prática","arena":"Arena Adapta","end":"16:50"},{"start":"15:30","title":"O Cemitério dos Projetos de IA: por que a maioria falha antes do go-live","arena":"Arena EU FAÇO by BeCulture","end":"16:05"},{"start":"15:30","title":"O funil se fragmentou: como indústria usa IA e dados para converter no D2C - Case Midea Carrier","arena":"Vila Confi","end":"16:10"},{"start":"15:35","title":"Serendipidade: entre Psychedelics e Redes Neurais, o que podemos aprender sobre inteligência?","arena":"Arena TODOS NÓS","end":"16:15"},{"start":"15:40","title":"Como o CEIA acelera sua startup de IA: pesquisa, programas e comunidade","arena":"Arena NÓS SOMOS CEIA","end":"16:20"},{"start":"15:50","title":"Inteligência humana na era da IA","arena":"Arena NÓS TRANSFORMAMOS","end":"16:25"},{"start":"15:50","title":"De ficção até a realidade cotidiana: como ensinamos humanoides a se mover","arena":"Stand CEIA","end":"16:45"},{"start":"15:55","title":"Segredos de uma vida mais consciente","arena":"Arena EU SOU","end":"16:45"},{"start":"16:05","title":"Agentes de IA e a transformação da Engenharia de Software","arena":"Arena EU FAÇO by BeCulture","end":"16:40"},{"start":"16:20","title":"O novo fluxo de engenharia: inserindo agentes autônomos na cultura de DevSecOps da equipe","arena":"Arena NÓS SOMOS CEIA","end":"17:00"},{"start":"16:25","title":"Alma, consciência e a pergunta que a máquina obrigou a gente a refazer","arena":"Arena TODOS NÓS","end":"17:00"},{"start":"16:25","title":"A fórmula e o contexto de como gerar valor aos resultados","arena":"Arena NÓS TRANSFORMAMOS","end":"17:05"},{"start":"16:40","title":"Habilidades Invisíveis: o que as empresas de tech buscam e não está no seu GitHub","arena":"Arena EU FAÇO by BeCulture","end":"17:15"},{"start":"16:45","title":"IA e saúde mental: uma reflexão necessária","arena":"Arena EU SOU","end":"17:35"},{"start":"16:55","title":"Construindo sistemas complexos com IA","arena":"Arena Adapta","end":"18:25"},{"start":"17:00","title":"Entrevista TV AI Brasil","arena":"TV AI Brasil","end":"17:20"},{"start":"17:00","title":"Do trabalho individual aos workflows inteligentes: experiências com IA na coordenação de equipes","arena":"Arena NÓS SOMOS CEIA","end":"17:40"},{"start":"17:05","title":"Biologia Digital: a próxima grande revolução tecnológica","arena":"Arena NÓS TRANSFORMAMOS","end":"17:40"},{"start":"17:10","title":"O Brasil na corrida pela IA: pesquisa, tecnologia e inovação além das big techs","arena":"Arena TODOS NÓS","end":"17:45"},{"start":"17:15","title":"IA Ética na política e gestão de dados","arena":"Arena EU FAÇO by BeCulture","end":"17:50"},{"start":"17:35","title":"Quanto mais inteligente a tecnologia, mais humanos precisamos ser","arena":"Arena EU SOU","end":"18:25"},{"start":"17:40","title":"Harness, Ontologia e Processos: a santa trindade da IA para transformações","arena":"Arena NÓS SOMOS CEIA","end":"18:20"},{"start":"17:50","title":"A profissão que você vai exercer e que ainda não existe","arena":"Arena EU FAÇO by BeCulture","end":"18:25"},{"start":"17:55","title":"IA Corporativa: de produtos físicos à cultura organizacional","arena":"Arena TODOS NÓS","end":"18:45"},{"start":"18:25","title":"Liderando a transformação da minha empresa em uma organização cognitiva","arena":"Arena EU FAÇO by BeCulture","end":"19:00"},{"start":"18:25","title":"A equipe que nunca dorme: como transformar operações integrando pessoas e processos","arena":"Arena NÓS TRANSFORMAMOS","end":"19:00"},{"start":"18:30","title":"Como integrar IA nas ferramentas que sua empresa usa: CRMs, ERPs e ferramentas internas","arena":"Arena Adapta","end":"19:55"},{"start":"18:50","title":"AI Shark Race · 4 Sharks, 3 finalistas, 3 minutos de pitch, 1 vencedor","arena":"Arena TODOS NÓS","end":"19:10"}]};
+const ARENAS = ["Arena TODOS NÓS","Arena EU FAÇO by BeCulture","Arena NÓS TRANSFORMAMOS","Arena NÓS SOMOS CEIA","Arena EU SOU","Arena Adapta","Vila Confi","Palco BeCulture/UAH!","Stand CEIA","TV AI Brasil"];
+const HUES = [152,24,212,268,330,190,44,0,96,236];
+const hueOf = a => HUES[ARENAS.indexOf(a)] ?? 200;
+
+// Stable ids + minute values
+for (const d of Object.keys(DATA)) DATA[d].forEach((s,i)=>{
+  s.id = d + "-" + s.start.replace(":","") + "-" + i;
+  s.day = d; s.s = toMin(s.start); s.e = toMin(s.end);
+});
+function toMin(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+
+const store = {
+  get(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+const state = {
+  day: "28", q: "", arenas: new Set(), now: false, fav: false, hidePast: false,
+  favs: new Set(store.get("aibx26-favs", []))
+};
+
+// Current time in Brasília
+function nowBR(){
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  return {date:`${p.year}-${p.month}-${p.day}`, min:+p.hour*60 + +p.minute, hm:`${p.hour}:${p.minute}`};
+}
+const dayDate = d => `2026-10-${d}`;
+function status(s, n){
+  if (n.date < dayDate(s.day)) return "future";
+  if (n.date > dayDate(s.day)) return "past";
+  if (n.min >= s.e) return "past";
+  if (n.min >= s.s) return "live";
+  if (s.s - n.min <= 30) return "soon";
+  return "future";
+}
+
+const norm = t => t.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const esc = t => t.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function hl(text, q){
+  if (!q) return esc(text);
+  const n = norm(text), i = n.indexOf(q);
+  if (i < 0) return esc(text);
+  return esc(text.slice(0,i)) + "<mark>" + esc(text.slice(i,i+q.length)) + "</mark>" + esc(text.slice(i+q.length));
+}
+const dur = s => { const m = s.e - s.s; return m >= 60 ? `${Math.floor(m/60)}h${m%60?String(m%60).padStart(2,"0"):""}` : `${m} min`; };
+
+const STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>';
+
+const $ = id => document.getElementById(id);
+
+function buildChips(){
+  const counts = {};
+  for (const s of DATA[state.day]) counts[s.arena] = (counts[s.arena]||0)+1;
+  let html = `<button class="chip all" data-arena="" aria-pressed="${state.arenas.size===0}"><i></i>Todas</button>`;
+  for (const a of ARENAS) if (counts[a])
+    html += `<button class="chip" style="--h:${hueOf(a)}" data-arena="${esc(a)}" aria-pressed="${state.arenas.has(a)}"><i></i>${esc(a.replace(/^Arena /,""))} <span style="color:var(--muted)">${counts[a]}</span></button>`;
+  $("chips").innerHTML = html;
+}
+
+function render(){
+  const n = nowBR();
+  const q = norm(state.q.trim());
+  const favList = DATA[state.day].filter(s => state.favs.has(s.id));
+  const items = DATA[state.day].filter(s => {
+    if (state.arenas.size && !state.arenas.has(s.arena)) return false;
+    if (q && !norm(s.title + " " + s.arena).includes(q)) return false;
+    if (state.fav && !state.favs.has(s.id)) return false;
+    const st = status(s, n);
+    if (state.hidePast && st === "past") return false;
+    if (state.now && !(st === "live" || st === "soon")) return false;
+    return true;
+  });
+
+  // Group by start time
+  const groups = new Map();
+  for (const s of items) { if (!groups.has(s.start)) groups.set(s.start, []); groups.get(s.start).push(s); }
+
+  let firstActive = null, html = "";
+  for (const [t, list] of groups) {
+    const sts = list.map(s => status(s, n));
+    const allPast = sts.every(x => x === "past");
+    const anyLive = sts.some(x => x === "live" || x === "soon");
+    if (!firstActive && !allPast) firstActive = "slot-" + t.replace(":","");
+    html += `<section class="slot${allPast?" past":""}${anyLive?" nowline":""}" id="slot-${t.replace(":","")}"><div class="time">${t}</div><div class="list">`;
+    list.forEach((s,i) => {
+      const st = sts[i], fav = state.favs.has(s.id);
+      const clash = fav && favList.some(o => o.id !== s.id && o.s < s.e && s.s < o.e);
+      html += `<article class="card ${st}" style="--h:${hueOf(s.arena)}">
+        <h3>${hl(s.title, q)}</h3>
+        <div class="meta">
+          <span class="arena"><i></i>${hl(s.arena, q)}</span>
+          <span class="hrs">${s.start}–${s.end} · ${dur(s)}</span>
+          ${st==="live"?'<span class="badge">Ao vivo</span>':st==="soon"?'<span class="badge soon">Em breve</span>':""}
+          ${clash?'<span class="conflict">Conflito de horário na sua agenda</span>':""}
+        </div>
+        <button class="star" data-id="${s.id}" aria-pressed="${fav}" aria-label="${fav?"Remover da":"Adicionar à"} minha agenda: ${esc(s.title)}">${STAR}</button>
+      </article>`;
+    });
+    html += `</div></section>`;
+  }
+
+  if (!items.length) {
+    let msg = "Nenhuma sessão com esses filtros.", sub = "Tente outra palavra, outra arena ou o outro dia.";
+    if (state.fav && !favList.length) { msg = "Sua agenda deste dia está vazia."; sub = "Toque na estrela de uma sessão para adicioná-la."; }
+    else if (state.now) { msg = "Nada acontecendo agora neste dia."; sub = n.date < dayDate(state.day) ? "Este dia ainda não começou." : "Desligue “Agora e em seguida” para ver a programação completa."; }
+    html = `<div class="empty"><strong>${msg}</strong>${sub}</div>`;
+  }
+  $("timeline").innerHTML = html;
+
+  const total = DATA[state.day].length;
+  $("summary").textContent = items.length === total ? `${total} sessões em ${groups.size} horários` : `${items.length} de ${total} sessões`;
+  $("clock").textContent = n.date === dayDate(state.day) ? `Agora em Brasília: ${n.hm}` : "";
+  $("favn").textContent = state.favs.size ? `(${state.favs.size})` : "";
+
+  const isToday = n.date === dayDate(state.day);
+  $("jump").hidden = !(isToday && firstActive && !state.now);
+  $("jump").dataset.target = firstActive || "";
+}
+
+function setDay(d, push){
+  state.day = d; state.arenas.clear();
+  for (const t of document.querySelectorAll(".tab")) t.setAttribute("aria-selected", t.dataset.day === d);
+  if (push && location.hash !== "#dia-" + d) history.replaceState(null, "", "#dia-" + d);
+  buildChips(); render();
+}
+
+// Events
+document.querySelector(".tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (b) setDay(b.dataset.day, true); });
+$("chips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  const a = b.dataset.arena;
+  if (!a) state.arenas.clear(); else state.arenas.has(a) ? state.arenas.delete(a) : state.arenas.add(a);
+  buildChips(); render();
+});
+$("q").addEventListener("input", e => { state.q = e.target.value; render(); });
+for (const [id, key] of [["f-now","now"],["f-fav","fav"],["f-past","hidePast"]])
+  $(id).addEventListener("click", e => { state[key] = !state[key]; e.currentTarget.setAttribute("aria-pressed", state[key]); render(); });
+$("timeline").addEventListener("click", e => {
+  const b = e.target.closest(".star"); if (!b) return;
+  const id = b.dataset.id;
+  state.favs.has(id) ? state.favs.delete(id) : state.favs.add(id);
+  store.set("aibx26-favs", [...state.favs]); render();
+});
+$("jump").addEventListener("click", e => { const t = $(e.currentTarget.dataset.target); if (t) t.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); });
+addEventListener("hashchange", () => { const m = location.hash.match(/^#dia-(28|29)$/); if (m && m[1] !== state.day) setDay(m[1]); });
+
+// Init
+$("n-28").textContent = DATA["28"].length; $("n-29").textContent = DATA["29"].length;
+$("stats").innerHTML = `<span><b>${DATA["28"].length + DATA["29"].length}</b> sessões</span><span><b>${ARENAS.length}</b> arenas e espaços</span><span><b>09:00–19:55</b> nos dois dias</span>`;
+const hashDay = (location.hash.match(/^#dia-(28|29)$/) || [])[1];
+const today = nowBR().date;
+setDay(hashDay || (today === "2026-10-29" ? "29" : "28"), false);
+setInterval(render, 60000);
+</script>
+</body>
+</html>
