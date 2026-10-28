@@ -10,6 +10,7 @@ require __DIR__ . '/push-lib.php';
 
 $lock = fopen(push_dir() . '/cron.lock', 'c');
 if (!flock($lock, LOCK_EX | LOCK_NB)) exit; // execução anterior ainda rodando
+touch(push_dir() . '/heartbeat'); // push.php informa a última execução
 
 $tz = new DateTimeZone('America/Sao_Paulo');
 $now = new DateTimeImmutable(getenv('PUSH_NOW') ?: 'now', $tz);

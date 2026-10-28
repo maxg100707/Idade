@@ -1,6 +1,6 @@
 <?php
 // API de inscrição em notificações push.
-//   GET  push.php                  -> {"key": chave pública VAPID}
+//   GET  push.php                  -> {"key": chave pública VAPID, "cron": última execução do cron}
 //   POST push.php {action:"subscribe", subscription, favs:[ids]}  -> grava/atualiza a inscrição
 //   POST push.php {action:"unsubscribe", subscription}            -> remove a inscrição
 require __DIR__ . '/push-lib.php';
@@ -12,7 +12,11 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 $fail = function (int $code, string $msg) { http_response_code($code); echo json_encode(['error' => $msg]); exit; };
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') { echo json_encode(['key' => vapid()['public']]); exit; }
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $hb = push_dir() . '/heartbeat';
+    echo json_encode(['key' => vapid()['public'], 'cron' => is_file($hb) ? gmdate('c', filemtime($hb)) : null]);
+    exit;
+}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') $fail(405, 'método não permitido');
 
 $raw = file_get_contents('php://input', false, null, 0, 32768);
